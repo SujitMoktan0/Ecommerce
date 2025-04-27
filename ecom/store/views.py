@@ -12,31 +12,39 @@ from .forms import ProductForm
 
 
 # Create your views here.
+def product(request, pk):
+    product = Product.objects.get(id=pk)
+    return render(request, 'product.html', {'product': product})
+
+
 def home(request):
     products = Product.objects.all()
-    return render(request, 'home.html', {'products': products})
+    is_seller = False
+    if request.user.is_authenticated:
+        is_seller = request.user.groups.filter(name='Seller').exists()
+    return render(request, 'home.html', {'products': products, 'is_seller': is_seller})
+
+def about(request):
+    return render(request, 'about.html', {})
 
 def login_user(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
+        
         if user is not None:
             login(request, user)
-            messages.success(request, ("You Have Been Logged In!"))
-
-            # Check if the user is a seller
+            messages.success(request, "You have been logged in successfully!")
+            
             if user.groups.filter(name='Seller').exists():
                 return redirect('product_management')
-            
             return redirect('home')
-        
         else:
-            messages.success(request, ("There was an error, please try again...!"))
+            messages.error(request, "Invalid username or password. Please try again.")
             return redirect('login')
-
-    else:
-        return render(request, 'login.html', {})
+    
+    return render(request, 'login.html', {})
 
 def logout_user(request):
     logout(request)
@@ -44,24 +52,29 @@ def logout_user(request):
     return redirect('home')
 
 def register_user(request):
-    form = SignUpForm()
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password1']
-
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            
+            # Authenticate and login the user
             user = authenticate(username=username, password=password)
-            login(request, user)
-            messages.success(request, ("You have Registered Successufully"))
-            return redirect('home')
-        else:
-            messages.success(request, ("Oops! There was a problem! Please Try again"))
-            return redirect('register')
-
-    else:
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Registration successful! You are now logged in.")
+                return redirect('home')
+        
+        # Form is invalid - collect all errors
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, f"{field.title()}: {error}")
         return render(request, 'register.html', {'form': form})
+    
+    # GET request - show empty form
+    form = SignUpForm()
+    return render(request, 'register.html', {'form': form})
 
 def is_seller(user):
     return user.groups.filter(name='Seller').exists()

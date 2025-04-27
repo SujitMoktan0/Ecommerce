@@ -1,35 +1,123 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="card shadow-lg p-4 rounded" style="width: 400px;">
-        <h3 class="text-center mb-4">Welcome Back!</h3>
-        
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-info text-center">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-
-        <form method="POST" action="{% url 'login' %}">
-            {% csrf_token %}
-            
-            <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" class="form-control" name="username" placeholder="Enter Your Username" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-control" name="password" placeholder="Enter Your Password" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-        </form>
-
-        <div class="text-center mt-3">
-            <small>Don't have an account? <a href="{% url 'register' %}" class="text-primary">Sign Up</a></small>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+    <div class="card shadow-lg p-4 rounded" style="width: 450px;">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-primary">Login to Your Account</h3>
+            <p class="text-muted">Welcome back to our community</p>
         </div>
+
+        <form method="POST" action="{% url 'login' %}" class="needs-validation" novalidate>
+            {% csrf_token %}
+    
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger mb-3">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Username</label>
+                <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                       value="{{ form.username.value|default:'' }}" required>
+                {% for error in form.username.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">Password</label>
+                <div class="input-group">
+                    <input type="password" name="password" id="id_password" 
+                           class="form-control {% if form.password.errors %}is-invalid{% endif %}" required>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    {% for error in form.password.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Login</button>
+
+            <div class="text-center mt-3">
+                <small class="text-muted">Don't have an account? 
+                    <a href="{% url 'register' %}" class="text-primary fw-bold">Sign Up</a>
+                </small>
+            </div>
+        </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Password toggle functionality
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        togglePassword('id_password', this);
+    });
+
+    function togglePassword(id, button) {
+        const input = document.getElementById(id);
+        const icon = button.querySelector('i');
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = "password";
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    // Form validation
+    (function() {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+    .form-control {
+        height: 45px;
+        border-radius: 8px;
+    }
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+    .btn-primary {
+        background-color: #0d6efd;
+        border: none;
+        border-radius: 8px;
+        height: 45px;
+        transition: all 0.3s;
+    }
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        transform: translateY(-1px);
+    }
+    .invalid-feedback {
+        font-size: 0.85rem;
+    }
+</style>
 {% endblock %}

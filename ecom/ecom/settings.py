@@ -31,7 +31,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'store'
+    'store',
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'django_ckeditor_5',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [
@@ -57,11 +61,26 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'store.context_processors.is_seller_processor'
             ],
         },
         
     },
 ]
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            'heading', '|',
+            'bold', 'italic', 'underline', 'strikethrough',
+            'bulletedList', 'numberedList', 'blockQuote',
+            'link', 'imageUpload'
+        ],
+        'language': 'en',
+        'height': '300px'
+    }
+}
 
 WSGI_APPLICATION = 'ecom.wsgi.application'
 
@@ -128,3 +147,82 @@ EMAIL_USE_TLS = True
  
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+
+
+JAZZMIN_SETTINGS = {
+    # ===========================
+    # 🛠 General Settings
+    # ===========================
+    "site_title": "E-Commerce Admin",
+    "site_header": "E-Commerce",
+    "site_brand": "E-Commerce Admin",
+    "welcome_sign": "Welcome to E-Commerce Admin",
+    "copyright": "Your Company",
+
+    # ===========================
+    # 🎨 UI Configuration
+    # ===========================
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "show_search_bar": True,
+    "list_filter": True,
+    "show_full_result_count": True,
+    "show_actions": True,
+    "related_modal_active": True,
+    "show_ui_builder": True,
+    "changeform_format": "horizontal_tabs",  # or "collapsible", "vertical_tabs"
+
+    # ===========================
+    # 📚 Sidebar behavior
+    # ===========================
+    "sidebar": {
+        "visible": True,
+        "sticky": True,  # Sidebar stays visible while scrolling
+        "minimized": False,  # Open by default
+    },
+
+    # ===========================
+    # 🔎 Search Configuration
+    # ===========================
+    "search_model_fields": {
+        "auth.User": ["username", "email", "first_name", "last_name"],
+        "store.Product": ["name", "description"],
+        "store.Category": ["name"],
+        "store.Customer": ["name", "email"],
+        "store.Order": ["id", "status"],
+    },
+
+    # ===========================
+    # 🧭 Top Menu Links
+    # ===========================
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "View Site", "url": "/", "new_window": True},
+        {"model": "auth.User"},
+        {"app": "store"},
+    ],
+
+    # ===========================
+    # 🚀 Custom Icons
+    # ===========================
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "store.Product": "fas fa-box",
+        "store.Customer": "fas fa-user-tie",
+        "store.Category": "fas fa-tags",
+        "store.Order": "fas fa-shopping-cart",
+    },
+
+    # ===========================
+    # 🎨 Custom CSS/JS
+    # ===========================
+    "custom_css": "css/admin_custom.css",
+    "custom_js": "js/admin_custom.js",
+}

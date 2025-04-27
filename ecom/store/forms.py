@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from .models import Product
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
@@ -30,8 +31,17 @@ class SignUpForm(UserCreationForm):
         self.fields['password2'].label = ''
         self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
 
-
 class ProductForm(forms.ModelForm):
+    description = forms.CharField(widget=CKEditor5Widget(config_name='default'))
+    
     class Meta:
         model = Product
-        fields = ['name', 'price', 'category', 'description', 'image', 'is_sale', 'sale_price']
+        fields = ['name', 'price', 'category', 'description', 'image', 'has_discount', 'discounted_price']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            if field != 'description' and field != 'has_discount':
+                self.fields[field].widget.attrs['class'] = 'form-control'
+        self.fields['has_discount'].widget.attrs['class'] = 'form-check-input'
+        self.fields['category'].widget.attrs['class'] = 'form-select'

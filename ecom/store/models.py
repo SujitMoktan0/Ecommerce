@@ -1,6 +1,7 @@
 from django.db import models
 import datetime
 from django.contrib.auth.models import User
+from django_ckeditor_5.fields import CKEditor5Field
 
 # Create your models here.
 class Category(models.Model):
@@ -19,6 +20,8 @@ class Customer(models.Model):
     phone = models.CharField(max_length=10)
     email = models.EmailField(max_length=100)
     passowrd = models.CharField(max_length=100)
+    date = models.DateField(default=datetime.datetime.today)
+
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -27,11 +30,13 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
-    description = models.CharField(max_length=250, default='', blank=True, null=True)
+    description = CKEditor5Field('Description', config_name='default', blank=False)
     image = models.ImageField(upload_to='uploads/product/')
+    date = models.DateField(default=datetime.datetime.today)
 
-    is_sale = models.BooleanField(default=False)
-    sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
+
+    has_discount = models.BooleanField(default=False)
+    discounted_price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
 
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
 
